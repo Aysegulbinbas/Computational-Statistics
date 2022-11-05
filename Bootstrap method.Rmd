@@ -1,0 +1,53 @@
+---
+title: "Bootstrap method"
+author: "Ayşegül BİNBAŞ "
+date: "5/27/2021"
+output: word_document
+---
+
+
+
+```{r}
+#library(moments)
+
+data("mtcars")
+head(mtcars)
+```
+
+
+
+
+```{r}
+
+
+
+
+
+B <- 1000 # bootstrap replicates
+mean <- numeric(B)
+
+
+sample_mean <- mean(mtcars$wt)
+
+
+for(i in 1:B){
+  index <- sample(1:nrow(mtcars), size = nrow(mtcars), 
+                  replace = TRUE)
+  x <- mtcars[index,"wt"]
+  mean[i] <- mean(x)
+  
+}
+
+
+est_mean <- mean(mean)
+se_mean <- sd(mean)
+bias_mean <- est_mean - sample_mean
+
+
+out <- c(sample_mean, est_mean, se_mean, bias_mean)
+names(out) <- c("sample", "estimated", "std.error", "bias")
+out
+
+
+```
+

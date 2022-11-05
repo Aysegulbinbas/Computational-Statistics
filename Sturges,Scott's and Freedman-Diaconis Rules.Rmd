@@ -1,0 +1,172 @@
+---
+title: "Sturges,Scott's and Freedman-Diaconis Rules"
+author: "Ayşegül BİNBAŞ"
+date: "6/10/2021"
+output: word_document
+---
+
+sample of size 100 from Normal (12,36)
+
+
+
+# Generate random sample of size 100 from Normal (12,36) and by using Sturges ::
+```{r}
+
+# Sturges' Rule 
+
+sturges <- function(x){
+  n <- length(x)
+  nclass <- ceiling(1 + log2(n))
+  cwidth <- diff(range(x) / nclass) #binwidth
+  breaks <- min(x) + cwidth * 0:nclass
+  return(list(nclass = nclass, cwidth = cwidth, breaks = breaks))
+}
+
+
+set.seed(123)
+x <- rnorm(100, 12, 6)
+
+
+z <- seq(min(x) - sturges(x)$cwidth, max(x) +  sturges(x)$cwidth, 0.01)
+
+h.default <- hist(x, freq = FALSE, xlab = "default", main = "default")
+lines(z, dnorm(z, 12, 6),col = "blue", lwd = 2.5)
+
+#sturges'
+h.sturges <- hist(x, breaks = sturges(x)$breaks, prob = TRUE, main = "Sturges")
+lines(z, dnorm(z, 12, 6),col = "blue", lwd = 2.5)
+
+
+
+
+
+# breaks
+h.default$breaks
+round(h.sturges$breaks,1)
+
+# counts
+h.default$counts
+h.sturges$counts
+
+sturges(x)$cwidth
+
+
+
+# Now, this time increase the sample size to 1000, you must see that the shape looks exactly symmetric bell shape. 
+
+
+set.seed(123)
+y <- rnorm(1000, 12, 6)
+
+z <- seq(min(y) - sturges(y)$cwidth, max(y) +  sturges(y)$cwidth, 0.01)
+
+h.default2 <- hist(y, freq = FALSE,
+                   xlab = "default", main = "default")
+lines(z, dnorm(z, 12, 6),col = "blue", lwd = 2.5)
+
+#sturges'
+h.sturges2 <- hist(y, breaks = sturges(y)$breaks,
+                   prob = TRUE, main = "Sturges")
+lines(z, dnorm(z, 12, 6),col = "blue", lwd = 2.5)
+
+# Now, let 𝑥0 = 12, locate the bin containing the point 𝑥0 and then compute the relative frequency. 
+#Compare with exact value (dnorm(12,12,6)
+
+
+x0 <- 12
+b <- which.min(h.default2$breaks <= x0) - 1
+print(c(b, h.default2$density[b]))
+b <- which.min(h.sturges2$breaks <= x0) - 1
+print(c(b, h.sturges2$density[b]))
+
+# exact value
+dnorm(12,12,6)
+# both values are close to the exact value 
+
+```
+
+
+# Generate random sample of size 100 from Normal (12,36) and by using Scott's  ::
+```{r}
+
+set.seed(1234)
+x <- rnorm(100, 12, 6)
+
+scotts <- function(x){
+  
+  n <- length(x)
+  h <- 3.5 * sd(x) * n^(-1/3) #optimal choice of binwidth
+  nclass <- ceiling(diff(range(x)) / h)
+  breaks <- min(x) + h * 0:nclass
+  return(list(nclass = nclass, h = h, breaks = breaks))
+  
+}
+
+h.scott <- hist(x, breaks = scotts(x)$breaks, freq = FALSE, main = "")
+z <- seq(min(x) - scotts(x)$h, max(y) +  scotts(x)$h, 0.01)
+lines(z, dnorm(z,mean = 10, sd = 5), col = "deeppink4",lwd = 2.5)
+
+
+
+
+# Now, let 𝑥0 = 12, locate the bin containing the point 𝑥0 and then compute the relative frequency. 
+#Compare with exact value (dnorm(12,12,6))
+
+
+x0 <- 12
+b <- which.min(h.scott$breaks <= x0) - 1
+print(c(b, h.scott$density[b]))
+
+# exact value
+dnorm(12,12,6)
+# both values are close to the exact value 
+
+
+
+
+```
+
+
+
+
+# Generate random sample of size 100 from Normal (12,36) and by using Freedman-Diaconis Rules ::
+```{r}
+
+set.seed(1234)
+x <- rnorm(25, 10, 5)
+
+FD <- function(x){
+  n <- length(x)
+  h <- 2 * IQR(x) * n^(-1/3)
+  nclass <- ceiling(diff(range(x)) / h)
+  breaks <- min(x) + h * 0:nclass
+  return(list(nclass = nclass, h = h, breaks = breaks))
+  
+}
+
+h.FD <- hist(x, breaks = FD(x)$breaks, freq = FALSE, main = "")
+z <- seq(min(x) - FD(x)$h, max(y) +  FD(x)$h, 0.01)
+lines(z, dnorm(z,mean = 10, sd = 5), col = "Red",lwd = 2.5)
+
+
+# Now, let 𝑥0 = 12, locate the bin containing the point 𝑥0 and then compute the relative frequency. 
+#Compare with exact value (dnorm(12,12,6))
+
+
+x0 <- 12
+b <- which.min(h.FD$breaks <= x0) - 1
+print(c(b, h.FD$density[b]))
+
+# exact value
+dnorm(12,12,6)
+# both values are close to the exact value 
+
+
+
+
+```
+
+
+
+
+

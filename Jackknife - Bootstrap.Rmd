@@ -1,0 +1,91 @@
+---
+title: "Jackknife - Bootstrap"
+author: "Ayşegül BİNBAŞ"
+date: "6/3/2021"
+output: word_document
+---
+
+
+```{r}
+
+data("mtcars")
+head(mtcars)
+
+
+
+```
+
+
+
+#Bootstrap :
+
+```{r}
+# we know this from last week
+B <- 1000 # bootstrap replicates
+Mean <- numeric(B)
+
+sample_mean <- mean(mtcars$wt)
+
+for(i in 1:B){
+  index <- sample(1:nrow(mtcars), size = nrow(mtcars), replace = TRUE)
+  x <- iris[index,"Sepal.Length"]
+  Mean[i] <- mean(x)
+  
+}
+
+est_mean <- mean(Mean)
+se_mean <- sd(Mean)
+bias_mean <- est_mean - sample_mean
+
+out <- c(sample_mean, est_mean, se_mean, bias_mean)
+names(out) <- c("sample", "estimated", "std.error", "bias")
+out
+
+
+```
+
+
+
+
+#Jacknife:
+
+```{r}
+
+weight = mtcars$wt
+
+mean_jack <- numeric(length(weight))
+sample_mean <- mean(mtcars$wt)
+
+for(i in 1:length(weight)){
+  
+  mean_jack[i] <- mean(weight[-i]) 
+  
+}
+
+
+est_mean_jack <- mean(mean_jack)
+se_mean_jack <- sqrt((length(weight) - 1) * mean((mean_jack - est_mean_jack)^2))
+bias_mean_jack <- (length(weight)-1) * (est_mean_jack - sample_mean)
+
+# To compare both method
+
+out1 <- rbind(out,c(sample_mean, est_mean_jack, se_mean_jack, bias_mean_jack))
+rownames(out1) <- c("bootstrap", "jackknife")
+out1
+
+
+
+```
+
+Alternatively :
+```{r}
+library(bootstrap)
+alternative.jack <- jackknife(mtcars$wt,mean)
+
+alternative.jack$jack.se
+alternative.jack$jack.bias
+```
+
+# As can be seen in the out 1 output, standard error and bias  are 0.17296847, 0.000000, respectively, in jackknife  method .Alternatively; when “jackknife” that is function under the “bootstrap” library, is used, the same answers are found.
+
+
